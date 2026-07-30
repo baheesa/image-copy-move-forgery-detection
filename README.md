@@ -30,7 +30,7 @@ MATLAB implementation of our paper published in
 
 **Copy-move forgery** means copying a region of an image and pasting it somewhere else in the same image — often to hide or duplicate content. After rotation, scaling, or JPEG compression, these edits can be almost invisible.
 
-This repository is the official MATLAB code for:
+This repository contains the MATLAB code for:
 
 > Fatima, B., Ghafoor, A., Ali, S.S. & Riaz, M.M. (2022).  
 > *FAST, BRIEF and SIFT based image copy-move forgery detection technique.*  
