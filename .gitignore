@@ -18,6 +18,11 @@ Thumbs.db
 p1.pdf
 _paper_extract.txt
 
+# Temporary figure extraction artefacts
+docs/figures/paper_pages/
+docs/figures/fig1_try*.png
+/tmp/
+
 # Large / regenerable VLFeat build artefacts (keep sources + toolbox)
 vlfeat-0.9.21/doc/
 vlfeat-0.9.21/docsrc/
