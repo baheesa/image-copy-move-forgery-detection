@@ -2,7 +2,7 @@
 
 # FAST, BRIEF and SIFT based image copy-move forgery detection technique
 
-Official MATLAB implementation of our paper published in  
+MATLAB implementation of our paper published in  
 *Multimedia Tools and Applications* · Springer · 2022
 
 <br/>
