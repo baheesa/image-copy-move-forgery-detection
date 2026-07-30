@@ -1,3 +1,6 @@
+# Local GitHub CLI credentials (never commit)
+.gh-config/
+
 # OS / editor
 .DS_Store
 Thumbs.db
