@@ -9,90 +9,125 @@
 %    "FAST, BRIEF and SIFT based image copy-move forgery detection technique"
 %    Multimedia Tools and Applications, 81, 43805–43819.
 %    https://doi.org/10.1007/s11042-022-12915-y
-%    PDF: https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf
 %
-%  Pipeline (matches the paper):
-%    1. FAST corner detection + BRIEF descriptors  → textured / missing regions
-%    2. SIFT keypoint detection + descriptors      → smooth regions
-%    3. Generalized 2nd nearest-neighbour (g2NN) matching
-%    4. Morphological refinement + SSIM verification
-%    5. Linear Spectral Clustering (LSC) localization
-%    6. Precision / Recall / F-measure vs. ground-truth mask
+%  This script follows the paper pipeline (Section 2 / Fig. 1):
 %
-%  Usage:
-%    Set img_name / gt_img below, then run this script in MATLAB.
-%    Requires: Image Processing Toolbox, VLFeat 0.9.21, LSC_mex MEX file.
-%    Examples live under examples/ (see examples/README.md).
+%    Section 2   Proposed technique (overview)
+%    Sec. 2.1    Preprocessing          — separate prep for FAST and for SIFT
+%    Sec. 2.2    Feature detection and description
+%                  • FAST + BRIEF  → textured / corner regions
+%                  • SIFT          → smooth / uniform regions
+%    Sec. 2.3    Feature matching and post-processing
+%                  • g2NN matching (both branches)
+%                  • merge matched features
+%                  • remove outliers (morphology + area filtering)
+%                  • forgery localization
+%                  • improve localization with LSC + SSIM (γ_s = 0.6)
+%
+%  Fig. 1 boxes (left = SIFT branch, right = FAST/BRIEF branch):
+%    Input Image
+%      ├─ Preprocessing for SIFT → SIFT Feature Detection
+%      │                        → SIFT Feature Extraction
+%      │                        → g2NN Feature Matching
+%      └─ Preprocessing for FAST → FAST Feature Detection
+%                               → BRIEF Feature Extraction
+%                               → g2NN Feature Matching
+%    → Matched Features
+%    → Post Processing: Removing Outliers
+%                     → Forgery Localization
+%                     → Improving Localization using Segmentation
+%
+%  Usage: set img_name / gt_img, then run. See examples/README.md.
 %==========================================================================
 
 %% Initialization
 clc; clear; close all;
 
-%% Get image
-% Add VLFeat to the MATLAB path (SIFT detection / description).
-% Prefer forward slashes so the path works on Windows, macOS, and Linux.
+%%--------------------------------------------------------------------------
+%  INPUT IMAGE  (Fig. 1 — top box)
+%  Load the forged image and its ground-truth mask for evaluation.
+%--------------------------------------------------------------------------
 addpath(fullfile('vlfeat-0.9.21', 'toolbox'));
-vl_setup;
+vl_setup;   % VLFeat provides vl_sift used in Section 2.2 (SIFT branch)
 
-% --- Input / ground-truth pair (change these to evaluate other samples) ---
-% See examples/README.md for demo, translation, rotation, and scaling sets.
+% Change these paths to try other samples under examples/
 img_name = 'examples/demo/img3.png';
 gt_img   = 'examples/demo/img3_gt.png';
 
-gt       = imread(gt_img);
-filename = imread(img_name);
+gt       = imread(gt_img);      % ground-truth forgery mask
+filename = imread(img_name);    % input forged RGB / gray image
 
-%% Preprocessing for FAST
-% Buffers that collect matched source/target locations from each branch.
+% Accumulators for matched source/target locations from each branch
 BRIEF_target = []; BRIEF_source = [];
 SIFT_target  = []; SIFT_source  = [];
 
 tic;
+[m, n] = size(filename); %#ok<ASGLU>
 
-[m, n] = size(filename);
 
-% FAST works on a single-channel image. For colour inputs, use the green
-% channel (often highest SNR for natural scenes) and lightly sharpen it so
-% weak corners in textured regions become detectable.
+%%==========================================================================
+%  SECTION 2.1 — PREPROCESSING
+%  Paper: image is preprocessed separately for FAST and for SIFT because
+%  noise / unsharp edges hurt keypoint detection. FAST needs a sharp view
+%  of textured areas; SIFT needs a denoised view of smooth areas.
+%==========================================================================
+
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "Preprocessing for FAST"  (Sec. 2.1, FAST path)
+%  Convert to a single channel and sharpen (unsharp masking) so corners in
+%  textured regions stand out. Green channel is used for colour images.
+%--------------------------------------------------------------------------
 if length(size(filename)) == 3
     FAST_grayimage = imsharpen(uint8(filename(:,:,2)), 'Amount', 0.4);
 else
     FAST_grayimage = imsharpen(uint8(filename), 'Amount', 0.4);
 end
 
-% Binary canvas that will later mark matched keypoint locations.
+% Empty binary map — filled later with matched keypoint locations
 BW = imbinarize(FAST_grayimage, 'adaptive');
 BW(:) = 0;
 
-%% FAST Feature Detection
-% Detect corners with the FAST-12 circle test (Rosten & Drummond).
-% Threshold is a fraction of the local pixel intensity.
-corners1 = FAST_12(FAST_grayimage, 0.3);
-FAST_Locations = FAST_non_max(FAST_grayimage, corners1, 0.5); % non-maxima suppression
 
-% If the image is extremely textured, raise the threshold to keep the
-% keypoint count tractable for pairwise matching.
+%%==========================================================================
+%  SECTION 2.2 — FEATURE DETECTION AND DESCRIPTION
+%  Paper: FAST finds keypoints in textured areas (corners/edges); BRIEF
+%  builds binary descriptors on those points. SIFT finds keypoints and
+%  descriptors in smooth / uniform areas that FAST tends to miss.
+%==========================================================================
+
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "FAST Feature Detection"  (Sec. 2.2)
+%  FAST-12 circle test (Rosten & Drummond). Threshold γ_f = 0.3
+%  (raised to 0.5 if too many corners). Non-maxima suppression follows.
+%--------------------------------------------------------------------------
+corners1 = FAST_12(FAST_grayimage, 0.3);
+FAST_Locations = FAST_non_max(FAST_grayimage, corners1, 0.5);
+
 if size(FAST_Locations, 1) > 15000
     corners1 = FAST_12(FAST_grayimage, 0.5);
     FAST_Locations = FAST_non_max(FAST_grayimage, corners1, 0.5);
 end
 
 if size(FAST_Locations, 1) > 2 && size(FAST_Locations, 1) < 15000
-    %% BRIEF Feature Extraction
-    % Binary Robust Independent Elementary Features (Calonder et al.).
-    % A fixed Gaussian sampling pattern compares intensity pairs inside an
-    % 11×11 window, producing a 256-bit binary descriptor per FAST keypoint.
-    type        = 'gaussian';   % sampling pattern: 'uniform' | 'gaussian' | 'gaussian_local'
-    BRIEF_n     = 256;          % descriptor length (bits)
-    window_size = 11;           % patch size around each keypoint
+    %%----------------------------------------------------------------------
+    %  Fig. 1 — "BRIEF Feature Extraction"  (Sec. 2.2)
+    %  Paper: 256-D binary BRIEF descriptor at each FAST corner, after
+    %  Gaussian smoothing. Sampling pattern is Gaussian inside an 11×11
+    %  window (Calonder et al.).
+    %----------------------------------------------------------------------
+    type        = 'gaussian';
+    BRIEF_n     = 256;     % descriptor length (bits), as in the paper
+    window_size = 11;
     pattern     = sampling_generator(type, window_size, BRIEF_n);
 
     BRIEF_Descriptors = BRIEF_descriptor(FAST_grayimage, FAST_Locations, ...
                                          pattern, window_size, BRIEF_n);
 
-    %% BRIEF Feature Matching
-    % Self-matching with generalized 2NN (g2NN): keep neighbours whose
-    % distance ratio is below the threshold (detects multiple copies).
+    %%----------------------------------------------------------------------
+    %  Fig. 1 — "g2NN Feature Matching" on BRIEF  (Sec. 2.3, start)
+    %  Paper: generalized 2nd nearest neighbour (g2NN) so one keypoint can
+    %  match multiple pasted copies. Matching threshold γ_m = 0.05.
+    %----------------------------------------------------------------------
     BRIEF_matches = g2nn(BRIEF_Descriptors, BRIEF_Descriptors, ...
                          FAST_Locations, FAST_Locations, 0.05);
 
@@ -102,23 +137,31 @@ else
     disp('No matched points in BRIEF');
 end
 
-%% Preprocessing for SIFT
-% SIFT is more reliable in smooth / low-texture regions where FAST tends
-% to fail. Denoise lightly with a Wiener filter before detection.
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "Preprocessing for SIFT"  (Sec. 2.1, SIFT path)
+%  Paper: convert RGB→grayscale and apply adaptive noise removal (Wiener)
+%  so SIFT can detect features reliably in smooth regions.
+%--------------------------------------------------------------------------
 grayimage      = rgb2gray(filename);
 SIFT_grayimage = wiener2(grayimage, [5 5]);
 
-%% SIFT Feature Detection and Extraction
-% VLFeat SIFT: loc = [x; y; scale; orientation], des = 128-D descriptors.
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "SIFT Feature Detection" + "SIFT Feature Extraction" (Sec. 2.2)
+%  Paper: SIFT on the preprocessed image yields scale/rotation-invariant
+%  keypoints and 128-D descriptors (VLFeat implementation of Lowe).
+%--------------------------------------------------------------------------
 [loc, des] = vl_sift(single(SIFT_grayimage));
-SIFT_Locations = round(loc([2 1], :)');   % store as [row, col]
+SIFT_Locations = round(loc([2 1], :)');   % [row, col]
 
 if size(SIFT_Locations, 1) > 3 && size(SIFT_Locations, 1) < 15000
-    % Union of SIFT and FAST locations — used later for LSC segment voting.
+    % All keypoints (SIFT ∪ FAST) — used later when voting LSC segments
     all_Locations    = unique([SIFT_Locations; FAST_Locations], 'rows');
     SIFT_Descriptors = double(des');
 
-    %% SIFT Feature Matching
+    %%----------------------------------------------------------------------
+    %  Fig. 1 — "g2NN Feature Matching" on SIFT  (Sec. 2.3)
+    %  Same g2NN ratio test (γ_m = 0.05) as the BRIEF branch.
+    %----------------------------------------------------------------------
     SIFT_matches = g2nn(SIFT_Descriptors, SIFT_Descriptors, ...
                         SIFT_Locations, SIFT_Locations, 0.05);
     SIFT_source = SIFT_matches.source_loc;
@@ -131,28 +174,41 @@ else
     disp('No detected points in SIFT');
 end
 
-%% Combining Matching points from SIFT and BRIEF
-% Merge both branches so forged regions found by either detector survive.
+
+%%==========================================================================
+%  SECTION 2.3 — FEATURE MATCHING AND POST-PROCESSING
+%  Paper: after g2NN on both branches, matches are merged, outliers are
+%  removed, the forgery is localized, and localization is improved with
+%  LSC segmentation; SSIM (γ_s = 0.6) checks structural similarity of
+%  the duplicated regions.
+%==========================================================================
+
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "Matched Features"
+%  Combine BRIEF and SIFT correspondences into one set of source/target
+%  pairs (paper: both branches contribute to the final match set).
+%--------------------------------------------------------------------------
 source_locs = [BRIEF_source; SIFT_source];
 target_locs = [BRIEF_target; SIFT_target];
 k = [source_locs, target_locs];
 
-%% Post Processing
+%%--------------------------------------------------------------------------
+%  Fig. 1 — "Post Processing"
+%--------------------------------------------------------------------------
 if size(k, 1) > 0
     location   = unique(k, 'rows');
     source     = location(:, [1 2]);
     target     = location(:, [3 4]);
     final_locs = [source; target];
 
-    % Visualise all surviving matched keypoints.
+    % Visual check — overall matched points (cf. Fig. 2i in the paper)
     imshow(filename)
     title('Final Matched Feature Points (SIFT & BRIEF)')
     hold on
     scatter(final_locs(:,2), final_locs(:,1), 'r');
     hold off
 
-    %% Plotting Matched Features Points
-    % Draw correspondence lines between each source ↔ target pair.
+    % Correspondence lines between each matched pair
     imshow(filename);
     hold on;
     title('Match Keypoints');
@@ -163,56 +219,59 @@ if size(k, 1) > 0
          [plot_locs(1,:); plot_locs(3,:)], 'b-');
     hold off;
 
-    % Rasterise matched points onto the binary mask.
+    % Mark matched keypoints on a binary map for morphological growth
     for r = 1:size(final_locs, 1)
         BW(final_locs(r,1), final_locs(r,2)) = 1;
     end
 
-    % Morphological closing / dilation grows sparse keypoints into
-    % contiguous candidate forgery regions (paper post-processing step).
+    %%----------------------------------------------------------------------
+    %  Fig. 1 — "Removing Outliers"  (Sec. 2.3, morphological processing)
+    %  Paper: morphological operations grow sparse matches into candidate
+    %  regions; small / weak components are discarded as false matches.
+    %----------------------------------------------------------------------
     BW1 = imclose(imdilate(BW, strel('disk', 11, 0)), strel('disk', 5, 0));
     BW2 = imclose(imdilate(BW1, strel('disk', 6, 0)), strel('disk', 3, 0));
 
-    %% Removing Outliers based on area
-    % Discard tiny blobs; keep components that are a substantial fraction
-    % of the largest detected region (filters noise matches).
     stats = regionprops(BW2, 'Area');
     areas = [stats.Area];
     maxi  = max(areas(:));
-    area  = areas / maxi;
+    area  = areas / maxi; %#ok<NASGU>
 
     if maxi > 1500
+        % Keep only large components (relative to the biggest blob)
         bigObjects = bwareaopen(BW2, round(maxi * 0.4));
         final_B    = medfilt2(bigObjects, [12 12]);
         final_BW   = imfill(final_B, 'holes');
 
-        [row, col]       = find(final_BW ~= 0);
-        [row_gt, col_gt] = find(gt ~= 0);
+        [row, col] = find(final_BW ~= 0); %#ok<ASGLU>
 
         if size(row, 1) > 0
             [r1, c1] = find(final_BW == 1);
-            locs = [r1 c1];
+            locs = [r1 c1];   % candidate forged pixels after morphology
 
-            %% Forgery Region Localization using LSC
-            % Linear Spectral Clustering (Li & Chen, CVPR 2015) over-
-            % segments the image into superpixels. Segments that contain a
-            % high density of matched keypoints are labelled as forged.
-            gaus         = fspecial('gaussian', 3);
-            filteredImg  = imfilter(filename, gaus);
+            %%--------------------------------------------------------------
+            %  Fig. 1 — "Forgery Localization"
+            %            + "Improving Localization using Segmentation"
+            %  (Sec. 2.3)
+            %  Paper: Linear Spectral Clustering (LSC) [Li & Chen, CVPR
+            %  2015] over-segments the image. Segments that contain a high
+            %  density of matched points are kept as the forged region
+            %  (Fig. 2k–l).
+            %--------------------------------------------------------------
+            gaus          = fspecial('gaussian', 3);
+            filteredImg   = imfilter(filename, gaus);
             superpixelNum = 200;
             ratio         = 0.015;
             segments = LSC_mex(imsharpen(filteredImg), superpixelNum, ratio);
 
             num_keypoint     = size(all_Locations, 1);
             keypoint_segment = zeros(num_keypoint, 1);
-
-            num_matches       = size(locs, 1);
-            matched_segments  = zeros(num_matches, 1);
+            num_matches      = size(locs, 1);
+            matched_segments = zeros(num_matches, 1);
 
             for k = 1:num_keypoint
                 keypoint_segment(k) = segments(all_Locations(k,1), all_Locations(k,2));
             end
-
             for k = 1:num_matches
                 matched_segments(k) = segments(locs(k,1), locs(k,2));
             end
@@ -224,15 +283,14 @@ if size(k, 1) > 0
                 count(k) = sum(matched_segments == matching_segments(k));
             end
 
-            %% Removing segments containing less than 60% matching points
-            % Relative vote count: keep only segments whose match density
-            % is at least 60% of the densest forged segment.
+            % Keep segments whose match density is ≥ 60% of the peak
+            % (paper post-processing vote / density filter)
             segCount = [matching_segments(:) count count / max(count(:))];
-            segTot   = segCount;
+            segTot   = segCount; %#ok<NASGU>
             indices  = find(segCount(:,3) <= 0.6);
             segCount(indices, :) = [];
 
-            segment_BW    = [];
+            segment_BW     = [];
             final_segments = segCount(:,1);
             for matching = 1:length(segCount(:,3))
                 [r, c] = find(segments == uint16(final_segments(matching)));
@@ -246,10 +304,12 @@ if size(k, 1) > 0
             end
             my_BW = imfill(my_BW, 'holes');
 
-            %% SSIM
-            % Structural Similarity Index between the two largest candidate
-            % blobs. A high SSIM (≥ 0.60) confirms they are near-duplicates
-            % (true copy-move); otherwise fall back to the morphology mask.
+            %%--------------------------------------------------------------
+            %  Sec. 2.3 — Structural Similarity Index (SSIM), γ_s = 0.6
+            %  Paper: SSIM of localized areas checks shape similarity of
+            %  the duplicated regions. If SSIM ≥ 0.6 (and >1 blob), accept
+            %  the LSC mask; otherwise fall back to the morphology mask.
+            %--------------------------------------------------------------
             [binaryimage, num] = bwlabel(my_BW);
             thisBlob1 = ismember(binaryimage, 1);
             [labeledImage1, numRegions1] = bwlabel(thisBlob1); %#ok<ASGLU>
@@ -270,12 +330,12 @@ if size(k, 1) > 0
             end
 
             if ssimval >= 0.60 && num > 1
-                result_BW = my_BW;
+                result_BW = my_BW;      % LSC-refined localization
             else
-                result_BW = final_BW;
+                result_BW = final_BW;   % morphology-only fallback
             end
 
-            % Overlay the final detected forgery region.
+            % Final detected forgery region (cf. Fig. 2l)
             [row_result, col_result] = find(result_BW == 1);
             imshow(filename)
             title('FINAL IMAGE')
@@ -283,7 +343,7 @@ if size(k, 1) > 0
             scatter(col_result, row_result, 'yellow');
             hold off
 
-            % Pixel-level Precision / Recall / F-measure against GT mask.
+            % Evaluation vs. ground truth (Precision / Recall / F-measure)
             [FM, measure] = getFmeasure(result_BW, gt); %#ok<ASGLU>
             disp(measure);
         else
