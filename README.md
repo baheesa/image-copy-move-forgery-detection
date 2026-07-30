@@ -1,32 +1,33 @@
 <div align="center">
 
-# 🔍 Image Copy-Move Forgery Detection
+# Image Copy-Move Forgery Detection
 ### FAST · BRIEF · SIFT
 
-<p>
-Official <b>MATLAB</b> implementation of our paper published in<br/>
-<em>Multimedia Tools and Applications</em> · Springer · 2022
-</p>
+Official MATLAB implementation of our paper published in  
+*Multimedia Tools and Applications* · Springer · 2022
 
-<p>
-  <a href="https://link.springer.com/article/10.1007/s11042-022-12915-y"><img src="https://img.shields.io/badge/Paper-Springer-0F4C81?style=for-the-badge&logo=spring&logoColor=white" alt="Paper"/></a>
-  <a href="https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf"><img src="https://img.shields.io/badge/PDF-Download-C41E3A?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="PDF"/></a>
-  <a href="https://doi.org/10.1007/s11042-022-12915-y"><img src="https://img.shields.io/badge/DOI-10.1007/s11042--022--12915--y-blue?style=for-the-badge" alt="DOI"/></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge" alt="License"/></a>
-</p>
+<br/>
 
-<p>
-  <a href="https://www.linkedin.com/in/baheesafatima/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
-  <a href="https://www.researchgate.net/profile/Baheesa-Fatima-2"><img src="https://img.shields.io/badge/ResearchGate-00CCBB?style=flat&logo=researchgate&logoColor=white" alt="ResearchGate"/></a>
-  <a href="https://orcid.org/0009-0003-2757-5672"><img src="https://img.shields.io/badge/ORCID-A6CE39?style=flat&logo=orcid&logoColor=white" alt="ORCID"/></a>
-  <a href="mailto:baheesafatima@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=flat&logo=gmail&logoColor=white" alt="Email"/></a>
-</p>
+[![Paper](https://img.shields.io/badge/Paper-Springer-0F4C81?style=flat-square)](https://link.springer.com/article/10.1007/s11042-022-12915-y)
+[![PDF](https://img.shields.io/badge/PDF-Download-C41E3A?style=flat-square)](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf)
+[![DOI](https://img.shields.io/badge/DOI-10.1007/s11042--022--12915--y-blue?style=flat-square)](https://doi.org/10.1007/s11042-022-12915-y)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
+
+<br/>
+
+[LinkedIn](https://www.linkedin.com/in/baheesafatima/)
+·
+[ResearchGate](https://www.researchgate.net/profile/Baheesa-Fatima-2)
+·
+[ORCID](https://orcid.org/0009-0003-2757-5672)
+·
+[Email](mailto:baheesafatima@gmail.com)
 
 </div>
 
 ---
 
-## 👋 Overview
+## Overview
 
 **Copy-move forgery** means copying a region of an image and pasting it somewhere else in the same image — often to hide or duplicate content. After rotation, scaling, or JPEG compression, these edits can be almost invisible.
 
@@ -38,34 +39,34 @@ This repository is the official MATLAB code for:
 
 In short, the detector:
 
-1. 🔵 finds keypoints in **smooth** areas with **SIFT**
-2. 🟢 finds corners in **textured** areas with **FAST + BRIEF**
-3. 🔗 matches duplicated regions (including **multiple pastes**) with **g2NN**
-4. 🧹 refines matches and **localizes** the forged region with morphology, **SSIM**, and **LSC**
+1. finds keypoints in **smooth** areas with **SIFT**
+2. finds corners in **textured** areas with **FAST + BRIEF**
+3. matches duplicated regions (including **multiple pastes**) with **g2NN**
+4. refines matches and **localizes** the forged region with morphology, **SSIM**, and **LSC**
 
-📄 **Article:** [Springer page](https://link.springer.com/article/10.1007/s11042-022-12915-y)  
-📥 **PDF:** [Direct PDF link](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(institutional / Springer access may be required)*  
-🔗 **DOI:** [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
+- **Article:** [Springer page](https://link.springer.com/article/10.1007/s11042-022-12915-y)
+- **PDF:** [Direct PDF link](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(institutional / Springer access may be required)*
+- **DOI:** [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
 
-If this code helps your work, please [cite the paper](#-citation). Thank you!
-
----
-
-## ✨ Key features
-
-| | Feature | Detail |
-|---|---|---|
-| 🧩 | **Smooth + textured coverage** | SIFT handles low-texture regions; FAST+BRIEF recovers corners in textured areas many detectors miss |
-| 🔁 | **Multiple pastes** | g2NN lets one keypoint match several copies — not just a single nearest neighbour |
-| 🔄 | **Geometric attacks** | Evaluated under rotation and scaling of the copied patch |
-| 🗜️ | **Compression** | Tested with JPEG-compressed forgeries |
-| 🎯 | **Pixel-level localization** | Outputs a forgery mask, not only a binary real/fake label |
-| ⚡ | **Practical cost** | Avoids heavy dense-field or deep models; suitable for a standard MATLAB workstation |
-| 📊 | **Standard metrics** | Reports Precision, Recall, and F-measure against ground-truth masks |
+If this code helps your work, please [cite the paper](#citation). Thank you!
 
 ---
 
-## 🧠 Method diagram
+## Key features
+
+| Feature | Detail |
+|---|---|
+| **Smooth + textured coverage** | SIFT handles low-texture regions; FAST+BRIEF recovers corners in textured areas many detectors miss |
+| **Multiple pastes** | g2NN lets one keypoint match several copies — not just a single nearest neighbour |
+| **Geometric attacks** | Evaluated under rotation and scaling of the copied patch |
+| **Compression** | Tested with JPEG-compressed forgeries |
+| **Pixel-level localization** | Outputs a forgery mask, not only a binary real/fake label |
+| **Practical cost** | Avoids heavy dense-field or deep models; suitable for a standard MATLAB workstation |
+| **Standard metrics** | Reports Precision, Recall, and F-measure against ground-truth masks |
+
+---
+
+## Method diagram
 
 From the paper — *Fig. 1 Proposed improved copy-move image forgery detection technique*:
 
@@ -77,17 +78,17 @@ From the paper — *Fig. 1 Proposed improved copy-move image forgery detection t
 
 | Stage | What it does |
 |---|---|
-| 🖼️ **Input image** | Forged RGB photograph |
-| 🔵 **SIFT branch** | Wiener / grayscale preprocess → SIFT detect & describe → g2NN match *(smooth regions)* |
-| 🟢 **FAST + BRIEF branch** | Sharpen / green-channel preprocess → FAST-12 corners → 256-bit BRIEF → g2NN match *(texture)* |
-| 🔗 **Matched features** | Union of both branches |
-| 🧹 **Post-processing** | Remove outliers → localize forgery → improve boundaries with **LSC** superpixels + **SSIM** check |
+| **Input image** | Forged RGB photograph |
+| **SIFT branch** | Wiener / grayscale preprocess → SIFT detect & describe → g2NN match *(smooth regions)* |
+| **FAST + BRIEF branch** | Sharpen / green-channel preprocess → FAST-12 corners → 256-bit BRIEF → g2NN match *(texture)* |
+| **Matched features** | Union of both branches |
+| **Post-processing** | Remove outliers → localize forgery → improve boundaries with **LSC** superpixels + **SSIM** check |
 
 **Problem we target.** Classical keypoint methods often fail on smooth regions; block methods struggle with rotation/scale and cost more. We combine two complementary detectors so both textured and smooth content contribute matches, then localize with clustering rather than stopping at sparse points.
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
 **Requirements:** MATLAB R2018b+ with the **Image Processing Toolbox**.
 
@@ -112,7 +113,7 @@ main
 
 You should see matched keypoints, correspondence lines, the final forgery overlay, and a `measure` struct with **F-measure**, **precision**, and **recall**.
 
-> 💡 More images: see [`examples/`](examples/README.md) — demo, translation, rotation, and scaling sets.
+More images are under [`examples/`](examples/README.md) — demo, translation, rotation, and scaling sets:
 
 ```matlab
 img_name = 'examples/translation/img2.jpg';
@@ -121,11 +122,11 @@ gt_img   = 'examples/translation/img2_gt.jpg';
 
 ---
 
-## 📁 Repository layout
+## Repository layout
 
 ```text
 .
-├── main.m                      # ▶️ end-to-end script
+├── main.m                      # end-to-end script
 ├── FAST_12.m                   # FAST-12 corner detector
 ├── FAST_non_max.m              # non-maxima suppression
 ├── BRIEF_descriptor.m          # binary BRIEF descriptors
@@ -136,11 +137,11 @@ gt_img   = 'examples/translation/img2_gt.jpg';
 ├── getFmeasure.m               # Precision / Recall / F-measure
 ├── LSC_mex.mexw64              # LSC localization (Windows MEX)
 ├── vlfeat-0.9.21/              # VLFeat (SIFT)
-├── examples/                   # 🖼️ all demo & evaluation images
-│   ├── demo/                   #   6 starter pairs
-│   ├── translation/            #   plain copy-move + baseline visuals
-│   ├── rotation/               #   rotated paste + baseline visuals
-│   ├── scaling/                #   scaled paste + baseline visuals
+├── examples/                   # all demo & evaluation images
+│   ├── demo/                   # 6 starter pairs
+│   ├── translation/            # plain copy-move + baseline visuals
+│   ├── rotation/               # rotated paste + baseline visuals
+│   ├── scaling/                # scaled paste + baseline visuals
 │   └── README.md
 ├── docs/figures/               # paper Fig. 1
 ├── LICENSE                     # MIT + copyright
@@ -149,17 +150,17 @@ gt_img   = 'examples/translation/img2_gt.jpg';
 
 ---
 
-## 🧰 Requirements
+## Requirements
 
 | Dependency | Notes |
 |---|---|
-| 🧮 **MATLAB** R2018b+ | Image Processing Toolbox (`imsharpen`, `ssim`, `regionprops`, …) |
-| 📚 **VLFeat 0.9.21** | Bundled — `main.m` calls `vl_setup` automatically |
-| 🪟 **LSC MEX** | `LSC_mex.mexw64` is built for **64-bit Windows**. On macOS / Linux, compile [LSC](https://jschenthu.weebly.com/projects.html) (Li & Chen, CVPR 2015) for your platform and place the MEX on the MATLAB path |
+| **MATLAB** R2018b+ | Image Processing Toolbox (`imsharpen`, `ssim`, `regionprops`, …) |
+| **VLFeat 0.9.21** | Bundled — `main.m` calls `vl_setup` automatically |
+| **LSC MEX** | `LSC_mex.mexw64` is built for **64-bit Windows**. On macOS / Linux, compile [LSC](https://jschenthu.weebly.com/projects.html) (Li & Chen, CVPR 2015) for your platform and place the MEX on the MATLAB path |
 
 ---
 
-## 🎛️ Default parameters
+## Default parameters
 
 These match the settings used in our experiments / code:
 
@@ -177,7 +178,7 @@ These match the settings used in our experiments / code:
 
 ---
 
-## 📊 Evaluation
+## Evaluation
 
 Detection quality is measured **pixel-wise** against a binary ground-truth mask ([`getFmeasure.m`](getFmeasure.m)):
 
@@ -191,20 +192,20 @@ The paper compares against contemporary keypoint and block-based methods on plai
 
 ---
 
-## 🖼️ Examples
+## Examples
 
 Everything is under [`examples/`](examples/README.md):
 
 | Folder | Contents |
 |---|---|
-| 🟢 `demo/` | 6 quick starter images + GT masks |
-| 🔵 `translation/` | Plain copy-move cases + proposed vs Pun / Ryu / Cao |
-| 🟠 `rotation/` | Rotated-paste cases + comparisons |
-| 🟣 `scaling/` | Scaled-paste cases + comparisons |
+| `demo/` | 6 quick starter images + GT masks |
+| `translation/` | Plain copy-move cases + proposed vs Pun / Ryu / Cao |
+| `rotation/` | Rotated-paste cases + comparisons |
+| `scaling/` | Scaled-paste cases + comparisons |
 
 ---
 
-## 📚 Citation
+## Citation
 
 ```bibtex
 @article{Fatima2022CopyMove,
@@ -221,7 +222,7 @@ Everything is under [`examples/`](examples/README.md):
 
 ---
 
-## 👩‍💻 Authors & contact
+## Authors & contact
 
 | Author | Affiliation |
 |---|---|
@@ -232,14 +233,14 @@ Everything is under [`examples/`](examples/README.md):
 
 **Corresponding author — Baheesa Fatima**
 
-- ✉️ [baheesafatima@gmail.com](mailto:baheesafatima@gmail.com)
-- 💼 [LinkedIn](https://www.linkedin.com/in/baheesafatima/)
-- 🔬 [ResearchGate](https://www.researchgate.net/profile/Baheesa-Fatima-2)
-- 🆔 [ORCID 0009-0003-2757-5672](https://orcid.org/0009-0003-2757-5672)
+- Email: [baheesafatima@gmail.com](mailto:baheesafatima@gmail.com)
+- LinkedIn: [baheesafatima](https://www.linkedin.com/in/baheesafatima/)
+- ResearchGate: [Baheesa-Fatima-2](https://www.researchgate.net/profile/Baheesa-Fatima-2)
+- ORCID: [0009-0003-2757-5672](https://orcid.org/0009-0003-2757-5672)
 
 ---
 
-## 📰 Publication details
+## Publication details
 
 | | |
 |---|---|
@@ -253,7 +254,7 @@ Everything is under [`examples/`](examples/README.md):
 
 ---
 
-## © Copyright
+## Copyright
 
 **© 2022 Baheesa Fatima, Abdul Ghafoor, Syed Sohaib Ali, and M. Mohsin Riaz.**
 
@@ -264,16 +265,16 @@ Everything is under [`examples/`](examples/README.md):
 
 ---
 
-## 📜 License — why MIT?
+## License — why MIT?
 
 This code is released under the **[MIT License](LICENSE)**.
 
 We chose MIT because it is:
 
-- ✅ **Simple** — short, widely understood, easy for universities and labs to adopt  
-- ✅ **Research-friendly** — others can reuse and adapt the detector in their own pipelines  
-- ✅ **Compatible** — works well alongside common open-source toolboxes  
-- ✅ **Attribution-preserving** — the copyright notice must stay with the code  
+- **Simple** — short, widely understood, easy for universities and labs to adopt  
+- **Research-friendly** — others can reuse and adapt the detector in their own pipelines  
+- **Compatible** — works well alongside common open-source toolboxes  
+- **Attribution-preserving** — the copyright notice must stay with the code  
 
 MIT does **not** replace a paper citation. If you publish results that use this implementation, please cite our MTAP 2022 article (BibTeX above) and keep the copyright header.
 
@@ -281,7 +282,7 @@ The software is provided **as is**, without warranty.
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 | Credit | Contribution |
 |---|---|
@@ -296,8 +297,6 @@ The software is provided **as is**, without warranty.
 
 <div align="center">
 
-<br/>
-
 <sub>
 © 2022 Baheesa Fatima et al. · MIT License ·
 <em>FAST, BRIEF and SIFT based image copy-move forgery detection technique</em>
@@ -305,12 +304,12 @@ The software is provided **as is**, without warranty.
 
 <br/><br/>
 
-<a href="https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf">📥 PDF</a>
-&nbsp;·&nbsp;
-<a href="https://link.springer.com/article/10.1007/s11042-022-12915-y">📖 Paper</a>
-&nbsp;·&nbsp;
-<a href="mailto:baheesafatima@gmail.com">✉️ Contact</a>
-&nbsp;·&nbsp;
-<a href="https://www.linkedin.com/in/baheesafatima/">💼 LinkedIn</a>
+[PDF](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf)
+·
+[Paper](https://link.springer.com/article/10.1007/s11042-022-12915-y)
+·
+[Contact](mailto:baheesafatima@gmail.com)
+·
+[LinkedIn](https://www.linkedin.com/in/baheesafatima/)
 
 </div>

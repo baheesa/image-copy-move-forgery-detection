@@ -1,4 +1,4 @@
-# 🖼️ Examples
+# Examples
 
 All test images for this project live here — demos from the paper and the
 extra cases we shared with the journal during revision.
@@ -13,7 +13,7 @@ examples/
 
 ---
 
-## 🟢 `demo/` — start here
+## `demo/` — start here
 
 Six forged images with matching ground-truth masks. Good for a first run.
 
@@ -28,7 +28,7 @@ gt_img   = 'examples/demo/img3_gt.png';
 
 ---
 
-## 🔵 `translation/` — plain copy-move
+## `translation/` — plain copy-move
 
 Six cases where the copied patch is pasted with translation only  
 (source: Cozzolino / Lozzolino *et al.*, 2015).
@@ -60,7 +60,7 @@ gt_img   = 'examples/translation/img2_gt.jpg';
 
 ---
 
-## 🟠 `rotation/` — rotated paste
+## `rotation/` — rotated paste
 
 Four cases from Ardizzone *et al.* (2015), subset **D1-2**.
 
@@ -78,7 +78,7 @@ gt_img   = 'examples/rotation/img16_gt.jpg';
 
 ---
 
-## 🟣 `scaling/` — scaled paste
+## `scaling/` — scaled paste
 
 Four cases from Ardizzone *et al.* (2015), subset **D1-2**.
 
@@ -96,7 +96,7 @@ gt_img   = 'examples/scaling/img22_gt.jpg';
 
 ---
 
-## 📎 Baselines shown in the comparison images
+## Baselines shown in the comparison images
 
 | Tag | Method |
 |---|---|
@@ -107,7 +107,7 @@ gt_img   = 'examples/scaling/img22_gt.jpg';
 
 ---
 
-## 📚 Dataset references
+## Dataset references
 
 - D. Cozzolino, G. Poggi, L. Verdoliva. *Efficient dense-field copy–move forgery detection.* IEEE TIFS, 2015.
 - E. Ardizzone, A. Bruno, G. Mazzola. *Copy–move forgery detection by matching triangles of keypoints.* IEEE TIFS, 2015.
