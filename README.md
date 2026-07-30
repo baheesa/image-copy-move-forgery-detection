@@ -1,9 +1,9 @@
 <div align="center">
 
-# Image Copy-Move Forgery Detection (FAST · BRIEF · SIFT)
+# Image Copy-Move Forgery Detection
+### FAST · BRIEF · SIFT
 
-MATLAB toolbox for **copy-move image forgery detection** and **forgery localization** in digital image forensics  
-Published in *Multimedia Tools and Applications* (Springer, 2022)
+MATLAB code from our Springer paper (*Multimedia Tools and Applications*, 2022)
 
 <br/>
 
@@ -29,161 +29,144 @@ Published in *Multimedia Tools and Applications* (Springer, 2022)
 
 ---
 
-## Overview
+## What this is
 
-**Copy-move forgery** (also called region duplication) is a common form of **image tampering**: a patch is copied from one place in an image and pasted elsewhere to hide or duplicate content. After rotation, scaling, or JPEG compression, these edits are hard to spot by eye.
+Sometimes people hide or invent content in a photo by copying a patch and pasting it somewhere else in the *same* image. That’s **copy-move forgery**. After a bit of rotation, scaling, or JPEG compression, you often can’t see the edit.
 
-This repository is the official **MATLAB** implementation of a **keypoint-based copy-move forgery detection** method that combines **FAST**, **BRIEF**, and **SIFT** for robust detection and **pixel-level forgery localization**:
+This repo is the MATLAB code behind our paper:
 
 > Fatima, B., Ghafoor, A., Ali, S.S. & Riaz, M.M. (2022).  
 > *FAST, BRIEF and SIFT based image copy-move forgery detection technique.*  
 > Multimedia Tools and Applications, 81, 43805–43819.
 
-The detector:
+We don’t only say “forged / not forged.” We also try to **paint where** the duplicated region is.
 
-1. finds keypoints in **smooth** areas with **SIFT**
-2. finds corners in **textured** areas with **FAST + BRIEF**
-3. matches duplicated regions (including **multiple pastes**) with **g2NN**
-4. refines matches and **localizes** the forged region with morphology, **SSIM**, and **LSC**
+How it works, in plain words:
 
-- **Article:** [Springer page](https://link.springer.com/article/10.1007/s11042-022-12915-y)
-- **PDF:** [Full text PDF](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(institutional / Springer access may be required)*
-- **DOI:** [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
-- **Cite this software:** see [`CITATION.cff`](CITATION.cff) or the [Citation](#citation) section below
+1. **SIFT** picks up points in smooth areas (where plain corner detectors struggle).
+2. **FAST + BRIEF** picks up corners in textured areas.
+3. **g2NN** matches those points — including when something was pasted more than once.
+4. Morphology, **SSIM**, and **LSC** clean the matches and tighten the final mask.
 
-If this code helps your work, please cite the paper. Thank you!
+- Paper: [Springer](https://link.springer.com/article/10.1007/s11042-022-12915-y)
+- PDF: [download](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(access may need a library login)*
+- DOI: [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
+- Cite the code: [`CITATION.cff`](CITATION.cff)
+
+If you use this in your own work, a citation means a lot — thank you.
 
 ---
 
-## Key features
+## Why bother with two detectors?
 
-| Feature | Detail |
+Most older keypoint methods lean on textured corners and quietly fail on smooth patches (sky, walls, skin). Block methods can be slow and brittle under rotation or scale. We run **two branches in parallel**, merge their matches, then localize — so both kinds of content get a chance.
+
+| Strength | In practice |
 |---|---|
-| **Smooth + textured coverage** | SIFT handles low-texture regions; FAST+BRIEF recovers corners in textured areas many detectors miss |
-| **Multiple pastes** | g2NN lets one keypoint match several copies — not just a single nearest neighbour |
-| **Geometric attacks** | Evaluated under rotation and scaling of the copied patch |
-| **Compression** | Tested with JPEG-compressed forgeries |
-| **Pixel-level localization** | Outputs a forgery mask, not only a binary real/fake label |
-| **Practical cost** | Avoids heavy dense-field or deep models; suitable for a standard MATLAB workstation |
-| **Standard metrics** | Reports Precision, Recall, and F-measure against ground-truth masks |
+| Smooth + textured | SIFT and FAST+BRIEF cover different parts of the image |
+| Multiple pastes | g2NN can link one point to several copies |
+| Geometric attacks | Tested with rotated and scaled pastes |
+| Compression | Includes JPEG cases |
+| Localization | You get a mask, not only a yes/no label |
+| Cost | Meant to run on a normal MATLAB laptop |
 
 ---
 
 ## Method diagram
 
-From the paper — *Fig. 1 Proposed improved copy-move image forgery detection technique*:
+This is Fig. 1 from the paper — the full pipeline at a glance.
 
 <div align="center">
-  <img src="docs/figures/fig1_proposed_method.png" alt="Method diagram for FAST BRIEF SIFT copy-move image forgery detection: dual-branch keypoint matching and LSC localization" width="720"/>
+  <img src="docs/figures/fig1_proposed_method.png" alt="Method diagram for FAST BRIEF SIFT copy-move image forgery detection" width="720"/>
 </div>
 
-### Pipeline walkthrough
-
-| Stage | What it does |
+| Stage | What happens |
 |---|---|
-| **Input image** | Forged RGB photograph |
-| **SIFT branch** | Wiener / grayscale preprocess → SIFT detect & describe → g2NN match *(smooth regions)* |
-| **FAST + BRIEF branch** | Sharpen / green-channel preprocess → FAST-12 corners → 256-bit BRIEF → g2NN match *(texture)* |
-| **Matched features** | Union of both branches |
-| **Post-processing** | Remove outliers → localize forgery → improve boundaries with **LSC** superpixels + **SSIM** check |
+| Input | Forged photo |
+| SIFT branch | Denoise → detect → describe → g2NN (smooth regions) |
+| FAST + BRIEF branch | Sharpen → FAST corners → BRIEF bits → g2NN (texture) |
+| Matched features | Merge both branches |
+| Post-processing | Drop outliers → localize → refine with LSC + SSIM |
 
-**Problem we target.** Classical keypoint methods often fail on smooth regions; block methods struggle with rotation/scale and cost more. We combine two complementary detectors so both textured and smooth content contribute matches, then localize with clustering rather than stopping at sparse points.
+Comments in [`main.m`](main.m) point to the same section numbers (2.1–2.3) if you want to read code and paper side by side.
 
 ---
 
 ## Quick start
 
-**Requirements:** MATLAB R2018b+ with the **Image Processing Toolbox**.
+You’ll need MATLAB R2018b+ with the Image Processing Toolbox.
 
 ```bash
 git clone https://github.com/baheesa/image-copy-move-forgery-detection.git
 cd image-copy-move-forgery-detection
 ```
 
-1. Open MATLAB in the project root.  
-2. In [`main.m`](main.m), pick an image pair (defaults already point to a demo):
+Open MATLAB in this folder, then in [`main.m`](main.m) set a pair like:
 
 ```matlab
 img_name = 'examples/demo/img3.png';
 gt_img   = 'examples/demo/img3_gt.png';
 ```
 
-3. Run:
+Run:
 
 ```matlab
 main
 ```
 
-You should see matched keypoints, correspondence lines, the final forgery overlay, and a `measure` struct with **F-measure**, **precision**, and **recall**.
+You should get matched points, link lines, a yellow localization overlay, and Precision / Recall / F-measure against the ground truth.
 
-More images are under [`examples/`](examples/README.md) — demo, translation, rotation, and scaling sets:
+Browse more scenes (with short notes under each pair) in [`examples/`](examples/README.md):
 
 ```matlab
 img_name = 'examples/translation/img2.jpg';
 gt_img   = 'examples/translation/img2_gt.jpg';
 ```
 
+> **Note:** `LSC_mex.mexw64` is a Windows build. On Mac or Linux, compile LSC for your machine and put that MEX on the path.
+
 ---
 
-## Repository layout
+## What’s in the repo
 
 ```text
 .
-├── main.m                      # end-to-end script
-├── FAST_12.m                   # FAST-12 corner detector
-├── FAST_non_max.m              # non-maxima suppression
-├── BRIEF_descriptor.m          # binary BRIEF descriptors
-├── sampling_generator.m        # BRIEF sampling patterns
-├── g2nn.m                      # generalized 2nd nearest neighbour
-├── second_nearest_neighbour.m  # classic 2NN helper
-├── dist2.m                     # pairwise squared distances
-├── getFmeasure.m               # Precision / Recall / F-measure
-├── LSC_mex.mexw64              # LSC localization (Windows MEX)
-├── vlfeat-0.9.21/              # VLFeat (SIFT)
-├── examples/                   # all demo & evaluation images
-│   ├── demo/                   # 6 starter pairs
-│   ├── translation/            # plain copy-move + baseline visuals
-│   ├── rotation/               # rotated paste + baseline visuals
-│   ├── scaling/                # scaled paste + baseline visuals
-│   └── README.md
-├── docs/figures/               # paper Fig. 1
-├── LICENSE                     # MIT + copyright
+├── main.m                 # run this
+├── FAST_*.m, BRIEF_*.m    # textured branch
+├── g2nn.m, dist2.m        # matching helpers
+├── getFmeasure.m          # Precision / Recall / F-measure
+├── LSC_mex.mexw64         # localization (Windows)
+├── vlfeat-0.9.21/         # SIFT
+├── examples/              # demo + translation / rotation / scaling
+├── docs/figures/          # paper Fig. 1
+├── CITATION.cff
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-## Requirements
-
-| Dependency | Notes |
-|---|---|
-| **MATLAB** R2018b+ | Image Processing Toolbox (`imsharpen`, `ssim`, `regionprops`, …) |
-| **VLFeat 0.9.21** | Bundled — `main.m` calls `vl_setup` automatically |
-| **LSC MEX** | `LSC_mex.mexw64` is built for **64-bit Windows**. On macOS / Linux, compile [LSC](https://jschenthu.weebly.com/projects.html) (Li & Chen, CVPR 2015) for your platform and place the MEX on the MATLAB path |
-
----
-
 ## Default parameters
 
-These match the settings used in our experiments / code:
+These are the values we use in the script (same spirit as the paper):
 
 | Parameter | Default | Role |
 |---|---|---|
-| FAST threshold γ<sub>f</sub> | `0.3` (raises to `0.5` if >15k corners) | Controls how many FAST corners are kept |
+| FAST threshold γ<sub>f</sub> | `0.3` (→ `0.5` if too many corners) | How sensitive FAST is |
 | BRIEF length | `256` | Bits per descriptor |
-| BRIEF window | `11` | Local patch size |
-| BRIEF pattern | `'gaussian'` | Intensity-pair sampling |
-| g2NN ratio γ<sub>m</sub> | `0.05` | Distance-ratio cutoff for matching |
-| LSC superpixels | `200` | Over-segmentation density |
-| LSC ratio | `0.015` | Compactness / colour weight |
-| Segment vote | `≥ 0.6` | Keep segments with strong match density |
-| SSIM threshold γ<sub>s</sub> | `≥ 0.60` | Accept near-duplicate forged blobs |
+| BRIEF window | `11` | Patch size |
+| BRIEF pattern | `'gaussian'` | How sample pairs are drawn |
+| g2NN ratio γ<sub>m</sub> | `0.05` | Match strictness |
+| LSC superpixels | `200` | How fine the segments are |
+| LSC ratio | `0.015` | Segment compactness |
+| Segment vote | `≥ 0.6` | Keep strong forged segments |
+| SSIM γ<sub>s</sub> | `≥ 0.60` | Are the two blobs near-duplicates? |
 
 ---
 
-## Evaluation
+## How we score
 
-Detection quality is measured **pixel-wise** against a binary ground-truth mask ([`getFmeasure.m`](getFmeasure.m)):
+We compare the predicted mask to the ground-truth mask pixel by pixel ([`getFmeasure.m`](getFmeasure.m)):
 
 $$
 \mathrm{Precision} = \frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FP}}, \quad
@@ -191,26 +174,24 @@ $$
 F = \frac{2\cdot\mathrm{TP}}{2\cdot\mathrm{TP}+\mathrm{FP}+\mathrm{FN}}
 $$
 
-The paper compares against contemporary keypoint and block-based methods on plain and attacked copy-move cases (compression, rotation, scaling, multiple pastes), reporting gains in precision, recall, F-measure, visual localization, and runtime.
+The paper reports these against other keypoint and block methods on plain and attacked copy-move cases.
 
 ---
 
 ## Examples
 
-Everything is under [`examples/`](examples/README.md):
+Side-by-side forged vs localized images (with a short note for each scene) live in [`examples/README.md`](examples/README.md):
 
-| Folder | Contents |
-|---|---|
-| `demo/` | 6 quick starter images + GT masks |
-| `translation/` | Plain copy-move cases + proposed vs Pun / Ryu / Cao |
-| `rotation/` | Rotated-paste cases + comparisons |
-| `scaling/` | Scaled-paste cases + comparisons |
+- `demo/` — six starter images + ground truth  
+- `translation/` — plain paste + our yellow overlays  
+- `rotation/` — rotated paste  
+- `scaling/` — scaled paste  
 
 ---
 
 ## Citation
 
-Prefer citing the paper. You can also use GitHub’s **Cite this repository** button (powered by [`CITATION.cff`](CITATION.cff)).
+Please cite the paper. GitHub’s **Cite this repository** button also works via [`CITATION.cff`](CITATION.cff).
 
 ```bibtex
 @article{Fatima2022CopyMove,
@@ -231,21 +212,20 @@ Prefer citing the paper. You can also use GitHub’s **Cite this repository** bu
 
 | Author | Affiliation |
 |---|---|
-| **Baheesa Fatima** *(corresponding)* | National University of Sciences and Technology (NUST), Islamabad, Pakistan |
-| **Abdul Ghafoor** | National University of Sciences and Technology (NUST), Islamabad, Pakistan |
+| **Baheesa Fatima** *(corresponding)* | NUST, Islamabad, Pakistan |
+| **Abdul Ghafoor** | NUST, Islamabad, Pakistan |
 | **Syed Sohaib Ali** | COMSATS University, Islamabad, Pakistan |
 | **M. Mohsin Riaz** | COMSATS University, Islamabad, Pakistan |
 
-**Corresponding author — Baheesa Fatima**
+Questions or issues? Email is easiest: [baheesafatima@gmail.com](mailto:baheesafatima@gmail.com)
 
-- Email: [baheesafatima@gmail.com](mailto:baheesafatima@gmail.com)
-- LinkedIn: [baheesafatima](https://www.linkedin.com/in/baheesafatima/)
-- ResearchGate: [Baheesa-Fatima-2](https://www.researchgate.net/profile/Baheesa-Fatima-2)
-- ORCID: [0009-0003-2757-5672](https://orcid.org/0009-0003-2757-5672)
+- [LinkedIn](https://www.linkedin.com/in/baheesafatima/)
+- [ResearchGate](https://www.researchgate.net/profile/Baheesa-Fatima-2)
+- [ORCID](https://orcid.org/0009-0003-2757-5672)
 
 ---
 
-## Publication details
+## Publication
 
 | | |
 |---|---|
@@ -254,8 +234,7 @@ Prefer citing the paper. You can also use GitHub’s **Cite this repository** bu
 | Revised | 29 July 2021 |
 | Accepted | 9 March 2022 |
 | Published | 27 May 2022 |
-| Issue | Vol. 81, pp. 43805–43819 (December 2022) |
-| Keywords | Copy-move forgery · FAST · BRIEF · SIFT · Region duplication · Tampering detection |
+| Pages | Vol. 81, 43805–43819 |
 
 ---
 
@@ -263,48 +242,37 @@ Prefer citing the paper. You can also use GitHub’s **Cite this repository** bu
 
 **© 2022 Baheesa Fatima, Abdul Ghafoor, Syed Sohaib Ali, and M. Mohsin Riaz.**
 
-- The **source code** in this repository (MATLAB `.m` files and project scripts) is copyrighted by the authors above and released under the [MIT License](LICENSE).
-- The **research article** (text, publisher-formatted PDF, and Springer layout) remains under Springer / journal copyright. Use the PDF link for reading; do not redistribute the publisher PDF as if it were open data unless Springer’s terms allow it.
-- **Example images** are included for demonstration. Full benchmark datasets belong to their original creators — cite Cozzolino *et al.* (2015) and Ardizzone *et al.* (2015) when you use those sets.
-- Third-party libraries (VLFeat, LSC, `dist2`) keep their own copyrights and licenses.
+- The **MATLAB code** here is ours and released under the [MIT License](LICENSE).
+- The **published article / publisher PDF** stays under Springer’s copyright — use the PDF link to read it, don’t treat it as open data unless their terms say so.
+- **Example photos** are for demo; cite Cozzolino *et al.* (2015) and Ardizzone *et al.* (2015) if you use those datasets more broadly.
+- VLFeat, LSC, and `dist2` keep their own licenses.
 
 ---
 
-## License — why MIT?
+## Why MIT?
 
-This code is released under the **[MIT License](LICENSE)**.
+MIT is short, familiar to universities, and easy to reuse in other research code — while still requiring the copyright notice to travel with the files. It does **not** replace citing the paper. If you publish with this code, please cite the MTAP 2022 article and keep the header.
 
-We chose MIT because it is:
-
-- **Simple** — short, widely understood, easy for universities and labs to adopt  
-- **Research-friendly** — others can reuse and adapt the detector in their own pipelines  
-- **Compatible** — works well alongside common open-source toolboxes  
-- **Attribution-preserving** — the copyright notice must stay with the code  
-
-MIT does **not** replace a paper citation. If you publish results that use this implementation, please cite our MTAP 2022 article (BibTeX above) and keep the copyright header.
-
-The software is provided **as is**, without warranty.
+Provided as is, no warranty.
 
 ---
 
-## Acknowledgements
+## Thanks
 
-| Credit | Contribution |
+| | |
 |---|---|
-| [**VLFeat**](http://www.vlfeat.org/) (Vedaldi & Fulkerson) | SIFT detection & description |
-| **LSC** (Li & Chen, CVPR 2015) | Superpixel localization |
-| **dist2** (Bishop & Nabney) | Pairwise distance routine used in matching |
-| Cozzolino *et al.* (2015), Ardizzone *et al.* (2015) | Example imagery used under `examples/` |
-| Springer · *Multimedia Tools and Applications* | Publishing venue |
-| Anonymous reviewers | Feedback that motivated the extra rotation / scaling examples |
+| [VLFeat](http://www.vlfeat.org/) | SIFT |
+| LSC (Li & Chen, CVPR 2015) | Superpixels for localization |
+| Bishop & Nabney (`dist2`) | Distance helper |
+| Cozzolino *et al.*, Ardizzone *et al.* | Example imagery |
+| Springer MTAP + reviewers | Venue and feedback that led to the extra examples |
 
 ---
 
 <div align="center">
 
 <sub>
-© 2022 Baheesa Fatima et al. · MIT License ·
-<em>FAST, BRIEF and SIFT based image copy-move forgery detection technique</em>
+© 2022 Baheesa Fatima et al. · MIT License
 </sub>
 
 <br/><br/>
