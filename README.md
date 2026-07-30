@@ -1,6 +1,6 @@
 <div align="center">
 
-# Image Copy-Move Forgery Detection
+# FAST, BRIEF and SIFT based image copy-move forgery detection technique
 ### FAST · BRIEF · SIFT
 
 MATLAB code from our Springer paper (*Multimedia Tools and Applications*, 2022)
