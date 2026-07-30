@@ -1,0 +1,56 @@
+# This CITATION.cff file was generated for academic discoverability on GitHub.
+# See https://citation-file-format.github.io/
+
+cff-version: 1.2.0
+title: "FAST, BRIEF and SIFT based image copy-move forgery detection technique"
+message: "If you use this software, please cite the paper below."
+type: software
+authors:
+  - family-names: Fatima
+    given-names: Baheesa
+    email: baheesafatima@gmail.com
+    orcid: "https://orcid.org/0009-0003-2757-5672"
+    affiliation: "National University of Sciences and Technology (NUST), Islamabad, Pakistan"
+  - family-names: Ghafoor
+    given-names: Abdul
+    affiliation: "National University of Sciences and Technology (NUST), Islamabad, Pakistan"
+  - family-names: Ali
+    given-names: Syed Sohaib
+    affiliation: "COMSATS University, Islamabad, Pakistan"
+  - family-names: Riaz
+    given-names: M. Mohsin
+    affiliation: "COMSATS University, Islamabad, Pakistan"
+repository-code: "https://github.com/baheesa/image-copy-move-forgery-detection"
+url: "https://link.springer.com/article/10.1007/s11042-022-12915-y"
+doi: "10.1007/s11042-022-12915-y"
+license: MIT
+keywords:
+  - copy-move forgery detection
+  - image forgery detection
+  - digital image forensics
+  - FAST
+  - BRIEF
+  - SIFT
+  - keypoint matching
+  - g2NN
+  - forgery localization
+  - MATLAB
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Fatima
+      given-names: Baheesa
+    - family-names: Ghafoor
+      given-names: Abdul
+    - family-names: Ali
+      given-names: Syed Sohaib
+    - family-names: Riaz
+      given-names: M. Mohsin
+  title: "FAST, BRIEF and SIFT based image copy-move forgery detection technique"
+  journal: "Multimedia Tools and Applications"
+  year: 2022
+  volume: 81
+  start: 43805
+  end: 43819
+  doi: "10.1007/s11042-022-12915-y"
+  url: "https://link.springer.com/article/10.1007/s11042-022-12915-y"

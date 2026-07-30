@@ -1,9 +1,9 @@
 <div align="center">
 
-# FAST, BRIEF and SIFT based image copy-move forgery detection technique
+# Image Copy-Move Forgery Detection (FAST · BRIEF · SIFT)
 
-MATLAB implementation of our paper published in  
-*Multimedia Tools and Applications* · Springer · 2022
+MATLAB toolbox for **copy-move image forgery detection** and **forgery localization** in digital image forensics  
+Published in *Multimedia Tools and Applications* (Springer, 2022)
 
 <br/>
 
@@ -11,6 +11,7 @@ MATLAB implementation of our paper published in
 [![PDF](https://img.shields.io/badge/PDF-Download-C41E3A?style=flat-square)](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf)
 [![DOI](https://img.shields.io/badge/DOI-10.1007/s11042--022--12915--y-blue?style=flat-square)](https://doi.org/10.1007/s11042-022-12915-y)
 [![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2018b+-orange?style=flat-square)](https://www.mathworks.com/products/matlab.html)
 
 <br/>
 
@@ -24,19 +25,21 @@ MATLAB implementation of our paper published in
 
 </div>
 
+**Keywords:** copy-move forgery detection · image forgery detection · digital image forensics · FAST · BRIEF · SIFT · g2NN · keypoint matching · region duplication · forgery localization · MATLAB · passive forensics · image tampering detection
+
 ---
 
 ## Overview
 
-**Copy-move forgery** means copying a region of an image and pasting it somewhere else in the same image — often to hide or duplicate content. After rotation, scaling, or JPEG compression, these edits can be almost invisible.
+**Copy-move forgery** (also called region duplication) is a common form of **image tampering**: a patch is copied from one place in an image and pasted elsewhere to hide or duplicate content. After rotation, scaling, or JPEG compression, these edits are hard to spot by eye.
 
-This repository contains the MATLAB code for:
+This repository is the official **MATLAB** implementation of a **keypoint-based copy-move forgery detection** method that combines **FAST**, **BRIEF**, and **SIFT** for robust detection and **pixel-level forgery localization**:
 
 > Fatima, B., Ghafoor, A., Ali, S.S. & Riaz, M.M. (2022).  
 > *FAST, BRIEF and SIFT based image copy-move forgery detection technique.*  
 > Multimedia Tools and Applications, 81, 43805–43819.
 
-In short, the detector:
+The detector:
 
 1. finds keypoints in **smooth** areas with **SIFT**
 2. finds corners in **textured** areas with **FAST + BRIEF**
@@ -44,10 +47,11 @@ In short, the detector:
 4. refines matches and **localizes** the forged region with morphology, **SSIM**, and **LSC**
 
 - **Article:** [Springer page](https://link.springer.com/article/10.1007/s11042-022-12915-y)
-- **PDF:** [Direct PDF link](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(institutional / Springer access may be required)*
+- **PDF:** [Full text PDF](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(institutional / Springer access may be required)*
 - **DOI:** [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
+- **Cite this software:** see [`CITATION.cff`](CITATION.cff) or the [Citation](#citation) section below
 
-If this code helps your work, please [cite the paper](#citation). Thank you!
+If this code helps your work, please cite the paper. Thank you!
 
 ---
 
@@ -70,7 +74,7 @@ If this code helps your work, please [cite the paper](#citation). Thank you!
 From the paper — *Fig. 1 Proposed improved copy-move image forgery detection technique*:
 
 <div align="center">
-  <img src="docs/figures/fig1_proposed_method.png" alt="Fig. 1 Proposed improved copy-move image forgery detection technique" width="720"/>
+  <img src="docs/figures/fig1_proposed_method.png" alt="Method diagram for FAST BRIEF SIFT copy-move image forgery detection: dual-branch keypoint matching and LSC localization" width="720"/>
 </div>
 
 ### Pipeline walkthrough
@@ -205,6 +209,8 @@ Everything is under [`examples/`](examples/README.md):
 ---
 
 ## Citation
+
+Prefer citing the paper. You can also use GitHub’s **Cite this repository** button (powered by [`CITATION.cff`](CITATION.cff)).
 
 ```bibtex
 @article{Fatima2022CopyMove,
