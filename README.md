@@ -97,6 +97,11 @@ Keypoints are matched with **generalized 2<sup>nd</sup> nearest neighbour (g2NN)
 ├── vlfeat-0.9.21/              # VLFeat toolkit (SIFT)
 ├── img1.png … img6.png         # sample forged images
 ├── img1_gt.png … img6_gt.png   # corresponding ground-truth masks
+├── examples/response_sheet/    # 14 extra journal-revision examples
+│   ├── translation/            #   Images 1–6  (plain copy-move)
+│   ├── rotation/               #   Images 7–10 (rotated paste)
+│   ├── scaling/                #   Images 11–14 (scaled paste)
+│   └── README.md
 └── README.md
 ```
 
@@ -135,6 +140,18 @@ main
    - a `measure` struct with **FM, Precision (PPV), Recall (TPR)**, etc.
 
 Swap `img_name` / `gt_img` for `img1`…`img6` to try the other bundled examples.
+
+### Extra examples from the journal response sheet
+
+Fourteen additional cases (translation, rotation, scaling) from the
+13 July 2021 reviewer response, including ground truth, proposed outputs,
+and comparisons against Pun / Ryu / Cao, live under
+[`examples/response_sheet/`](examples/response_sheet/README.md).
+
+```matlab
+img_name = 'examples/response_sheet/translation/img2.jpg';
+gt_img   = 'examples/response_sheet/translation/img2_gt.jpg';
+```
 
 ---
 
