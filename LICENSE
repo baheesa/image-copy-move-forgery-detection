@@ -1,6 +1,10 @@
 # MIT License
 
-Copyright (c) 2022 Baheesa Fatima, Abdul Ghafoor, Syed Sohaib Ali, M. Mohsin Riaz
+Copyright (c) 2022 Baheesa Fatima, Abdul Ghafoor, Syed Sohaib Ali, and M. Mohsin Riaz
+
+All rights in the original research article remain with the authors and the
+publisher (Springer / Multimedia Tools and Applications). This license covers
+**only the source code and accompanying example assets in this repository**.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
-
-Academic use: if you use this code in research, please cite the paper
-(see README.md → Citation).
+------------------------------------------------------------------------------
+Academic courtesy: if you use this code in research, please cite the paper
+listed in README.md.

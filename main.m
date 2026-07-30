@@ -1,11 +1,15 @@
 %%==========================================================================
 %  FAST, BRIEF and SIFT based Image Copy-Move Forgery Detection
 %  -------------------------------------------------------------------------
-%  Reference implementation of:
+%  Copyright (c) 2022 Baheesa Fatima, Abdul Ghafoor, Syed Sohaib Ali,
+%  and M. Mohsin Riaz. Released under the MIT License (see LICENSE).
+%
+%  Reference:
 %    Fatima, B., Ghafoor, A., Ali, S.S. & Riaz, M.M. (2022).
 %    "FAST, BRIEF and SIFT based image copy-move forgery detection technique"
 %    Multimedia Tools and Applications, 81, 43805–43819.
 %    https://doi.org/10.1007/s11042-022-12915-y
+%    PDF: https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf
 %
 %  Pipeline (matches the paper):
 %    1. FAST corner detection + BRIEF descriptors  → textured / missing regions
@@ -18,6 +22,7 @@
 %  Usage:
 %    Set img_name / gt_img below, then run this script in MATLAB.
 %    Requires: Image Processing Toolbox, VLFeat 0.9.21, LSC_mex MEX file.
+%    Examples live under examples/ (see examples/README.md).
 %==========================================================================
 
 %% Initialization
@@ -30,8 +35,9 @@ addpath(fullfile('vlfeat-0.9.21', 'toolbox'));
 vl_setup;
 
 % --- Input / ground-truth pair (change these to evaluate other samples) ---
-img_name = 'img3.png';
-gt_img   = 'img3_gt.png';
+% See examples/README.md for demo, translation, rotation, and scaling sets.
+img_name = 'examples/demo/img3.png';
+gt_img   = 'examples/demo/img3_gt.png';
 
 gt       = imread(gt_img);
 filename = imread(img_name);
