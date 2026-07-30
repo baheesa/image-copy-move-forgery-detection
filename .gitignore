@@ -1,0 +1,23 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+*.asv
+*.m~
+
+# MATLAB
+*.mexmaci64
+*.mexa64
+# keep the bundled Windows LSC MEX
+# !LSC_mex.mexw64
+
+# Local paper copy (do not publish copyrighted PDF)
+p1.pdf
+_paper_extract.txt
+
+# Large / regenerable VLFeat build artefacts (keep sources + toolbox)
+vlfeat-0.9.21/doc/
+vlfeat-0.9.21/docsrc/
