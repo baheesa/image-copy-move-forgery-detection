@@ -26,15 +26,9 @@ doi: "10.1007/s11042-022-12915-y"
 license: MIT
 keywords:
   - copy-move forgery detection
-  - image forgery detection
-  - digital image forensics
   - FAST
   - BRIEF
   - SIFT
-  - keypoint matching
-  - g2NN
-  - forgery localization
-  - MATLAB
 preferred-citation:
   type: article
   authors:

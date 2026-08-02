@@ -25,7 +25,7 @@ MATLAB code from our Springer paper (*Multimedia Tools and Applications*, 2022)
 
 </div>
 
-**Keywords:** copy-move forgery detection · image forgery detection · digital image forensics · FAST · BRIEF · SIFT · g2NN · keypoint matching · region duplication · forgery localization · MATLAB · passive forensics · image tampering detection
+**Keywords:** copy-move forgery detection · FAST · BRIEF · SIFT
 
 ---
 
