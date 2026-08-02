@@ -13,7 +13,7 @@ MATLAB code from our Springer paper (*Multimedia Tools and Applications*, 2022)
 [![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2018b+-orange?style=flat-square)](https://www.mathworks.com/products/matlab.html)
 
-Easily accessible image-editing softwares have fueled the need for better forgery detection schemes that can overcome the limitedness of human vision to determine image authenticity. Most of the existing copy-move forgery techniques fail to detect forgery in smooth areas, forgery regions which are pasted multiple times or pasted after rotation and scaling. To solve these issues, the paper presents a two step keypoint based forgery detection technique. First, SIFT is used to detect keypoints in smooth regions. Second, BRIEF features with FAST descriptors are used to detect keypoints from missing regions (i.e. texture areas). Afterwards, keypoints are matched using generalized 2nd nearest neighbour. Then, morphological processing and structural similarity index are used to refine matches. Afterwards, linear spectral clustering is applied for better forgery localization. Simulations are performed on images taken from three datasets in which copy-move area was plain,compressed, rotated, scaled and pasted multiple times. Comparison of the simulation results with the state-of-the-art techniques shows improved precision, recall, and F-Measure values for the proposed technique. The technique also gives better visual results and reduces computational complexity.
+<br/>
 
 <br/>
 
@@ -27,35 +27,22 @@ Easily accessible image-editing softwares have fueled the need for better forger
 
 </div>
 
+Easily accessible image-editing softwares have fueled the need for better forgery detection schemes that can overcome the limitedness of human vision to determine image authenticity. Most of the existing copy-move forgery techniques fail to detect forgery in smooth areas, forgery regions which are pasted multiple times or pasted after rotation and scaling. To solve these issues, the paper presents a two step keypoint based forgery detection technique. First, SIFT is used to detect keypoints in smooth regions. Second, BRIEF features with FAST descriptors are used to detect keypoints from missing regions (i.e. texture areas). Afterwards, keypoints are matched using generalized 2nd nearest neighbour. Then, morphological processing and structural similarity index are used to refine matches. Afterwards, linear spectral clustering is applied for better forgery localization. Simulations are performed on images taken from three datasets in which copy-move area was plain,compressed, rotated, scaled and pasted multiple times. Comparison of the simulation results with the state-of-the-art techniques shows improved precision, recall, and F-Measure values for the proposed technique. The technique also gives better visual results and reduces computational complexity.
+
 **Keywords:** copy-move forgery detection · FAST · BRIEF · SIFT
 
 ---
 
 ## What this is
 
-Sometimes people hide or invent content in a photo by copying a patch and pasting it somewhere else in the *same* image. That’s **copy-move forgery**. After a bit of rotation, scaling, or JPEG compression, you often can’t see the edit.
-
-This repo is the MATLAB code behind our paper:
+Official MATLAB implementation of:
 
 > Fatima, B., Ghafoor, A., Ali, S.S. & Riaz, M.M. (2022).  
 > *FAST, BRIEF and SIFT based image copy-move forgery detection technique.*  
-> Multimedia Tools and Applications, 81, 43805–43819.
+> Multimedia Tools and Applications, 81, 43805–43819.  
+> DOI: [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
 
-We don’t only say “forged / not forged.” We also try to **paint where** the duplicated region is.
-
-How it works, in plain words:
-
-1. **SIFT** picks up points in smooth areas (where plain corner detectors struggle).
-2. **FAST + BRIEF** picks up corners in textured areas.
-3. **g2NN** matches those points — including when something was pasted more than once.
-4. Morphology, **SSIM**, and **LSC** clean the matches and tighten the final mask.
-
-- Paper: [Springer](https://link.springer.com/article/10.1007/s11042-022-12915-y)
-- PDF: [download](https://link.springer.com/content/pdf/10.1007/s11042-022-12915-y.pdf) *(access may need a library login)*
-- DOI: [10.1007/s11042-022-12915-y](https://doi.org/10.1007/s11042-022-12915-y)
-- Cite the code: [`CITATION.cff`](CITATION.cff)
-
-If you use this in your own work, a citation means a lot — thank you.
+Please cite the paper if you use this work.
 
 ---
 
