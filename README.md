@@ -13,6 +13,8 @@ MATLAB code from our Springer paper (*Multimedia Tools and Applications*, 2022)
 [![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2018b+-orange?style=flat-square)](https://www.mathworks.com/products/matlab.html)
 
+Easily accessible image-editing softwares have fueled the need for better forgery detection schemes that can overcome the limitedness of human vision to determine image authenticity. Most of the existing copy-move forgery techniques fail to detect forgery in smooth areas, forgery regions which are pasted multiple times or pasted after rotation and scaling. To solve these issues, the paper presents a two step keypoint based forgery detection technique. First, SIFT is used to detect keypoints in smooth regions. Second, BRIEF features with FAST descriptors are used to detect keypoints from missing regions (i.e. texture areas). Afterwards, keypoints are matched using generalized 2nd nearest neighbour. Then, morphological processing and structural similarity index are used to refine matches. Afterwards, linear spectral clustering is applied for better forgery localization. Simulations are performed on images taken from three datasets in which copy-move area was plain,compressed, rotated, scaled and pasted multiple times. Comparison of the simulation results with the state-of-the-art techniques shows improved precision, recall, and F-Measure values for the proposed technique. The technique also gives better visual results and reduces computational complexity.
+
 <br/>
 
 [LinkedIn](https://www.linkedin.com/in/baheesafatima/)
